@@ -17,7 +17,7 @@ import java.util.Vector;
 public class Database_Parser {
 
     private static DatabaseConnection dataConn = new DatabaseConnection();
-    private static Vector<String> articles = new Vector<String>();
+    private static Vector<Article> articles = new Vector<Article>();
     
     private static ResultSet results;
     private static String stSQL;
@@ -27,23 +27,38 @@ public class Database_Parser {
      */
     public static void main(String[] args) {
         
-        getTitles();
+        getArticles();
         
 
         
         
     }
     
-    private static void getTitles(){
-        stSQL = "SELECT title FROM articles;";
+    private static void getArticles(){
+        stSQL = "SELECT * FROM articles;";
+        Article art;
         
         results = dataConn.excuteQuery(stSQL);
         
+        int id = -1;
         String title = "";
+        String author = "";
+        String content = "";
+        String tags = "";
+        String category = "";
+        
+        
         try{
             while (results.next()){
+                id = results.getInt("id");
                 title = results.getString("title");
-                articles.add(title);
+                //author = results.getString("employee_id");   JOIN
+                content = results.getString("content");
+                //tags = results.getString("tags_id");         JOIN
+                //category = results.getString("cat_id");      JOIN
+                
+                art = new Article(id, title, content, author, tags, category);
+                articles.add(art);
             }
         } catch (Exception ex){
             System.out.println(ex.getMessage());
