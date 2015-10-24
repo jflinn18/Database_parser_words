@@ -6,6 +6,7 @@
 package database_parser;
 
 import java.sql.ResultSet;
+import java.util.Scanner;
 import java.util.Vector;
 
 
@@ -18,6 +19,7 @@ public class Database_Parser {
 
     private static final DatabaseConnection dataConn = new DatabaseConnection();
     private static Vector<Article> articles = new Vector<Article>();
+    private static int index;
     
     private static ResultSet results;
     private static String stSQL;
@@ -26,6 +28,11 @@ public class Database_Parser {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        
+        Scanner reader = new Scanner(System.in);
+        
+        System.out.print("Enter starting index: ");
+        index = reader.nextInt();
         
         getArticles();
         getWords("content");
@@ -73,7 +80,7 @@ public class Database_Parser {
         String[] contWords;
         int artID = -1;
         
-        for (int i = 0; i < articles.size(); i++){
+        for (int i = index; i < articles.size(); i++){
             artID = articles.get(i).id;
             
             switch (dataType){
