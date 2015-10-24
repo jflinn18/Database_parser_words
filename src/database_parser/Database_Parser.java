@@ -34,7 +34,7 @@ public class Database_Parser {
     }
     
     private static void getArticles(){
-        stSQL = "SELECT E.Fname, E.Lname, A.id, A.title, A.content FROM articles A, employees E WHERE A.Employee_ID = E.ID;";
+        stSQL = "SELECT E.Fname, E.Lname, A.id, A.title, A.content FROM articles A, employees E WHERE A.Employee_ID = E.ID ORDER BY A.id ASC;";
         Article art;
         
         results = dataConn.excuteQuery(stSQL);
