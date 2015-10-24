@@ -76,8 +76,6 @@ public class Database_Parser {
         for (int i = 0; i < articles.size(); i++){
             artID = articles.get(i).id;
             
-            System.out.print("\r" + i + "/" + articles.size());
-            
             switch (dataType){
                 case "content": text = articles.get(i).content; break;
                 case "author": text = articles.get(i).author; break;
@@ -87,10 +85,12 @@ public class Database_Parser {
             
             // remove special characters
             text = text.replaceAll("[^a-zA-Z \'\n]+", "");
-            text = text.replaceAll("\n", " ");
-            text = text.replaceAll("\'", "\\\'");
+            text = text.replace("\n", " ");
+            text = text.replace("\'", "\\\'");
             
             contWords = text.split(" "); // assuming there are not spaces in words
+            
+            System.out.println(i + "/" + articles.size() + " --> "+contWords.length+" words");
             
             for (String contWord : contWords) {
                 stSQL = "INSERT INTO Words (word) VALUES(\"" + contWord + "\");";
