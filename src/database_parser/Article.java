@@ -14,16 +14,12 @@ public class Article {
     protected String title = "";
     protected String content = "";
     protected String author = "";
-    protected String tags = "";
-    protected String category = "";
     
     
-    public Article(int id, String title, String con, String auth, String tags, String cat){
+    public Article(int id, String title, String con, String auth){
         this.id = id;
         this.title = title;
         this.content = con;
         this.author = auth;
-        this.tags = tags;
-        this.category = cat;
     }
 }

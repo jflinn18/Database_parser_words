@@ -16,7 +16,7 @@ import java.util.Vector;
  */
 public class Database_Parser {
 
-    private static DatabaseConnection dataConn = new DatabaseConnection();
+    private static final DatabaseConnection dataConn = new DatabaseConnection();
     private static Vector<Article> articles = new Vector<Article>();
     
     private static ResultSet results;
@@ -28,21 +28,21 @@ public class Database_Parser {
     public static void main(String[] args) {
         
         getArticles();
-        
-
-        
-        
+        getWords("content");
+        getWords("title");
+        getWords("author");
     }
     
     private static void getArticles(){
-        stSQL = "SELECT * FROM articles;";
+        stSQL = "SELECT E.Fname, E.Lname, A.id, A.title, A.content FROM articles A, employees E WHERE A.Employee_ID = E.ID;";
         Article art;
         
         results = dataConn.excuteQuery(stSQL);
         
         int id = -1;
         String title = "";
-        String author = "";
+        String Fauthor = "";
+        String Lauthor = "";
         String content = "";
         String tags = "";
         String category = "";
@@ -52,12 +52,11 @@ public class Database_Parser {
             while (results.next()){
                 id = results.getInt("id");
                 title = results.getString("title");
-                //author = results.getString("employee_id");   JOIN
+                Fauthor = results.getString("Fname");
+                Lauthor = results.getString("Lname");
                 content = results.getString("content");
-                //tags = results.getString("tags_id");         JOIN
-                //category = results.getString("cat_id");      JOIN
                 
-                art = new Article(id, title, content, author, tags, category);
+                art = new Article(id, title, content, Fauthor + " " + Lauthor);
                 articles.add(art);
             }
         } catch (Exception ex){
@@ -65,26 +64,46 @@ public class Database_Parser {
         }
     }
     
-    private static void ContentWords(String table){
-        String content = "";
+    // moved to creatin the article class because i need to populate the Article JOIN Words table
+    
+    // %param table - 
+    private static void getWords(String dataType){
+        String text = "";
+        String wordID = "";
+        String[] contWords;
+        int artID = -1;
         
         for (int i = 0; i < articles.size(); i++){
-            stSQL = "SELECT content FROM articles WHERE " + table + " = " + articles.elementAt(i)+ ";";
+            artID = articles.get(i).id;
             
-            results = dataConn.executeQuery(stSQL);
+            System.out.print("\r" + i + "/" + articles.size());
             
-            try{
-                if(results.next())
-                    content = results.getString(0);
-            }catch(Exception ex){
-                System.out.println(ex.getMessage());
+            switch (dataType){
+                case "content": text = articles.get(i).content; break;
+                case "author": text = articles.get(i).author; break;
+                case "title": text = articles.get(i).title; break;
             }
             
-            String[] contWords = content.split(" ");
             
-            for(int j = 0; j < contWords.length; j++){
-                stSQL = "INSERT INTO Words (word) Value(\'"+ contWords[j] + "\');";
-                dataConn.executeUpdate(stSQL);
+            // remove special characters
+            text = text.replaceAll("[^a-zA-Z \'\n]+", "");
+            text = text.replaceAll("\n", " ");
+            text = text.replaceAll("\'", "\\\'");
+            
+            contWords = text.split(" "); // assuming there are not spaces in words
+            
+            for (String contWord : contWords) {
+                stSQL = "INSERT INTO Words (word) VALUES(\"" + contWord + "\");";
+                wordID = dataConn.executeUpdate(stSQL, true);
+                try{
+                    if (artID == -1)
+                        throw new Exception("Exploded");
+                    stSQL = "INSERT INTO " + dataType + "words (Article_ID, Word_ID)  VALUES(\"" + artID + "\", \"" + wordID + "\");";
+                    dataConn.executeUpdate(stSQL, false);
+                } catch (Exception ex){
+                    System.out.println(ex.getMessage() + "\n");
+                    //System.out.println(stSQL);
+                }
             }
         }
         
