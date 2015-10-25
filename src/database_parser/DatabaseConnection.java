@@ -40,8 +40,8 @@ public class DatabaseConnection {
             /*stmt = conn.prepareStatement("last_id");
             return Integer.toString(stmt.executeUpdate());*/
         } catch (Exception ex) {
-            System.out.println(ex.getMessage() + "\n");
-            System.out.println(stSQL + "\n\n");
+            //System.out.println(ex.getMessage() + "\n");
+            //System.out.println(stSQL + "\n\n");
         }
         
         return null;

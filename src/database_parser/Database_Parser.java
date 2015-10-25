@@ -29,15 +29,19 @@ public class Database_Parser {
      */
     public static void main(String[] args) {
         
-        Scanner reader = new Scanner(System.in);
+        //Scanner reader = new Scanner(System.in);
         
-        System.out.print("Enter starting index: ");
-        index = reader.nextInt();
+        //System.out.print("Enter starting index: ");
+        //index = reader.nextInt();
+        index = 0;
         
         getArticles();
-        getWords("content");
-        getWords("title");
-        getWords("author");
+        //getWords("content");
+        //getWords("title");
+        //getWords("author");
+        matchWords("content");
+        matchWords("title");
+        matchWords("author");
     }
     
     private static void getArticles(){
@@ -73,7 +77,51 @@ public class Database_Parser {
     
     // moved to creatin the article class because i need to populate the Article JOIN Words table
     
-    // %param table - 
+    private static void matchWords(String dataType){
+        int artID = -1;
+        
+        for(int i = 0; i < articles.size(); i++){
+            String text = "";
+            int wordID = -1;
+            String[] words;
+            artID = articles.get(i).id;
+            
+            switch (dataType){
+                case "content": text = articles.get(i).content; break;
+                case "author": text = articles.get(i).content; break;
+                case "title": text = articles.get(i).content; break;
+            }
+            
+            // remove special characters
+            text = text.replaceAll("[^a-zA-Z \'\n]+", "");
+            text = text.replace("\n", " ");
+            text = text.replace("\'", "\\\'");
+            
+            words = text.split(" "); // assuming there are not spaces in words
+            
+            System.out.println(i + "/" + articles.size() + " --> "+words.length+" words");
+            
+            for (String word : words){
+                stSQL = "SELECT ID FROM words WHERE Word = \'" + word + "\';";
+                results = dataConn.excuteQuery(stSQL);
+                
+                try{
+                    //System.out.println(results.getInt("ID"));
+                   results.next();
+                    wordID = results.getInt(1);
+                    
+                    if (wordID == -1)
+                        throw new Exception("Incorrect word id");
+                }catch (Exception ex){
+                    System.out.println(ex.getMessage());
+                }
+                
+                stSQL = "INSERT INTO " + dataType + "words (Article_ID, Word_ID)  VALUES(\"" + artID + "\", \"" + wordID + "\");";
+                dataConn.executeUpdate(stSQL, false);    
+            }
+        }
+    }
+    
     private static void getWords(String dataType){
         String text = "";
         String wordID = "";
